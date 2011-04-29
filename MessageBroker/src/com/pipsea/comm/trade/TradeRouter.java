@@ -15,7 +15,7 @@ public class TradeRouter implements Runnable {
 		serverSocket.connect("ipc://dealer.ipc");
 
 		while(!Thread.currentThread().isInterrupted()){
-
+               aaaa
 			byte[] source = serverSocket.recv(0);
 			byte[] message = serverSocket.recv(0);
 
