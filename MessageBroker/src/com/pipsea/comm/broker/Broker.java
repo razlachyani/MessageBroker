@@ -72,7 +72,7 @@ public class Broker extends ThreadPoolExecutor {
 		
 		System.out.println("Initializing thread pool ...");
 		for (int i=0 ; i < poolSize ; i++){
-			broker.execute(new TradeRouter());
+			broker.execute(new TradeRouter("worker "+i));
 		}
 		System.out.println("Initialized thread pool ...");
 				

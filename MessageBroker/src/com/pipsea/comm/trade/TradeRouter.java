@@ -6,7 +6,13 @@ import org.zeromq.ZMQ.Socket;
 
 public class TradeRouter implements Runnable {
 
-	public void run() {
+    private String name;
+
+    public TradeRouter(String name) {
+        this.name = name;
+    }
+
+    public void run() {
 
 		Context context = ZMQ.context(1);
 
@@ -42,6 +48,8 @@ public class TradeRouter implements Runnable {
 			serverSocket.send(message, 0);
 
 		}
+
+        System.out.println("worker "+Thread.currentThread().getName() +"terminated");
 
 	}
 
