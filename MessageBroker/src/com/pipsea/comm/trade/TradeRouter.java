@@ -35,7 +35,8 @@ public class TradeRouter implements Runnable {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//e.printStackTrace();
+                    break;
 				}
 			}
 			System.out.println("Got message from client "+new String(source)+ " : "+new String(message));
@@ -43,7 +44,8 @@ public class TradeRouter implements Runnable {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
+                break;
 			}
 			serverSocket.send(message, 0);
 
