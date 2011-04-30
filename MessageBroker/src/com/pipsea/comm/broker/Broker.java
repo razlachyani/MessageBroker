@@ -70,6 +70,17 @@ public class Broker extends ThreadPoolExecutor {
                   TimeUnit unit, BlockingQueue<Runnable> workQueue, RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler);
 
+
+    }
+
+    /**
+     * @param args
+     * @throws InterruptedException
+     */
+    public static void main(String[] args) throws InterruptedException{
+
+        broker = new Broker(poolSize,maxPoolSize,keepAliveTime,TimeUnit.MINUTES,queue,new RejectedHandler());
+
         context = ZMQ.context(1);
 
         frontend = context.socket(ZMQ.XREP);
@@ -79,29 +90,17 @@ public class Broker extends ThreadPoolExecutor {
         frontend.bind("tcp://*:5559");
         backend.bind("ipc://dealer.ipc");
         System.out.println("Broker bounded to sockets ...");
-    }
-
-    /**
-     * @param args
-     * @throws InterruptedException
-     */
-    public static void main(String[] args) throws InterruptedException{
-
-        //Add shutdown hook
-        Runtime.getRuntime().addShutdownHook(new RunWhenShuttingDown());
-
-        broker = new Broker(poolSize,maxPoolSize,keepAliveTime,TimeUnit.MINUTES,queue,new RejectedHandler());
-        //here start all threads in pool with same tasks
 
         broker.prestartAllCoreThreads();
-
-
 
         System.out.println("Initializing thread pool ...");
         for (int i=0 ; i < poolSize ; i++){
             broker.execute(new TradeRouter("worker "+i));
         }
         System.out.println("Initialized thread pool ...");
+
+        //Add shutdown hook after broker and workers initiated
+        Runtime.getRuntime().addShutdownHook(new RunWhenShuttingDown());
 
         Poller items = context.poller(2);
         items.register(frontend, Poller.POLLIN);
@@ -143,7 +142,9 @@ public class Broker extends ThreadPoolExecutor {
     }
 
     public static void bye() throws InterruptedException {
-        broker.shutdown();
+
+        broker.shutdownNow();
+
         System.out.println("Broker is shutting down ...");
 
         while (!broker.isTerminated()){
