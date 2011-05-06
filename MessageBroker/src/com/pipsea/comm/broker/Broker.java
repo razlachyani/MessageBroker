@@ -155,6 +155,7 @@ public class Broker extends ThreadPoolExecutor {
 
         }
 
+        System.out.println("Broke the main loop ...");
         broker.bye();
     }
 

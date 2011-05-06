@@ -71,6 +71,8 @@ public class TradeWorker implements Runnable {
             }
 
             if(items.pollin(1)){
+                syncSub.recv(0);
+                System.out.println("Got shutdown signal from broker worker : "+Thread.currentThread().getName());
                 break;
             }
 
