@@ -61,7 +61,7 @@ public class Broker extends ThreadPoolExecutor {
 
             finishBroker.close();
             myContext.term();
-
+            System.out.println("Finished Control-C ...");
         }
     }
 
