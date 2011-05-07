@@ -144,11 +144,20 @@ public class Broker extends ThreadPoolExecutor {
             if(items.pollin(0)){
                 while(true){
                     message = frontend.recv(0);
+
+                    if(new String(message).equals("TERMINATE")){
+                        frontend.send("GOT_TERMINATION".getBytes(),0);
+                        terminate = true;
+                        break;
+                    }
+
                     more = frontend.hasReceiveMore();
                     backend.send(message, more ? ZMQ.SNDMORE : 0);
                     if(!more){
                         break;
                     }
+
+
                 }
             }
 
@@ -162,7 +171,7 @@ public class Broker extends ThreadPoolExecutor {
                     }
 
                     if(new String(message).equals("TERMINATE")){
-                       terminate = true;
+                        terminate = true;
                     }
 
                 }
