@@ -22,18 +22,18 @@ public class ShutDownBroker {
 
         System.out.println("Sending terminate to broker");
 
-        for(int i =0 ; i< 3;i++){
+        //for(int i =0 ; i< 3;i++){
 
             clientSocket.send("TERMINATE".getBytes(), 0);
 
-            byte [] res = clientSocket.recv(0);
-
-            if(new String(res).equals("GOT_TERMINATION")){
-
-                System.out.println("Got termination approval from broker ...");
-                break;
-            }
-        }
+//            byte [] res = clientSocket.recv(0);
+//
+//            if(new String(res).equals("GOT_TERMINATION")){
+//
+//                System.out.println("Got termination approval from broker ...");
+//                break;
+//            }
+//        }
 
         clientSocket.close();
         context.term();
