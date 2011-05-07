@@ -126,7 +126,7 @@ public class Broker extends ThreadPoolExecutor {
         brokerSide.initSync();
 
         //Add shutdown hook after broker and workers initiated
-        Runtime.getRuntime().addShutdownHook(new RunWhenShuttingDown());
+        //Runtime.getRuntime().addShutdownHook(new RunWhenShuttingDown());
 
         Poller items = context.poller(2);
         items.register(frontend, Poller.POLLIN);
@@ -200,7 +200,9 @@ public class Broker extends ThreadPoolExecutor {
             Thread.sleep(5000);
         }
 
+        System.out.println("Closing resources ...");
         closeResources();
+        System.out.println("resources are all closed ...");
     }
 
     private static void closeResources(){
