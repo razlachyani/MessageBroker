@@ -213,7 +213,7 @@ public class Broker extends ThreadPoolExecutor {
 
         listThreads(rootGroup, "");
 
-        System.exit(0);
+        //System.exit(0);
     }
 
     private static void closeResources(){
