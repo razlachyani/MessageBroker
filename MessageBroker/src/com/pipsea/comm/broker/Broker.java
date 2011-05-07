@@ -24,9 +24,9 @@ import com.pipsea.comm.trade.TradeWorker;
  */
 public class Broker extends ThreadPoolExecutor {
 
-     public static final String syncPubSubURI = "pubsub.ipc";
-     public static final String syncPubSubTopic = "SHUTDOWN";
-     public static final String dealerURI = "dealer.ipc";
+    public static final String syncPubSubURI = "pubsub.ipc";
+    public static final String syncPubSubTopic = "SHUTDOWN";
+    public static final String dealerURI = "dealer.ipc";
 
     private static Broker broker=null;
 
@@ -53,8 +53,8 @@ public class Broker extends ThreadPoolExecutor {
         public void run() {
             System.out.println("Control-C caught. Shutting down...");
 
-
             shutDown = true;
+
 
         }
     }
@@ -66,7 +66,7 @@ public class Broker extends ThreadPoolExecutor {
 
             System.err.println(Thread.currentThread().getName() + " execution rejected: " + arg0);
             System.out.println("Sending task again ...");
-             broker.execute(new TradeWorker(Thread.currentThread().getName()));
+            broker.execute(new TradeWorker(Thread.currentThread().getName()));
             System.out.println("Task sent ...");
         }
     }
@@ -122,36 +122,43 @@ public class Broker extends ThreadPoolExecutor {
         items.register(frontend, Poller.POLLIN);
         items.register(backend,Poller.POLLIN);
 
+        boolean terminate = false;
         boolean more=false;
         byte[] message;
 
 
-        while (!Thread.currentThread().isInterrupted() || shutDown == true){
+        while (!Thread.currentThread().isInterrupted() || shutDown==true){
 
-                items.poll();
+            items.poll();
 
-                if(items.pollin(0)){
-                    while(true){
-                        message = frontend.recv(0);
-                        more = frontend.hasReceiveMore();
-                        backend.send(message, more ? ZMQ.SNDMORE : 0);
-                        if(!more){
-                            break;
-                        }
+            if(items.pollin(0)){
+                while(true){
+                    message = frontend.recv(0);
+                    more = frontend.hasReceiveMore();
+                    backend.send(message, more ? ZMQ.SNDMORE : 0);
+                    if(!more){
+                        break;
                     }
                 }
+            }
 
-                if(items.pollin(1)){
-                    while(true){
-                        message=backend.recv(0);
-
-                        more = backend.hasReceiveMore();
-                        frontend.send(message, more ? ZMQ.SNDMORE : 0);
-                        if(!more){
-                            break;
-                        }
+            if(items.pollin(1)){
+                while(true){
+                    message=backend.recv(0);
+                    more = backend.hasReceiveMore();
+                    frontend.send(message, more ? ZMQ.SNDMORE : 0);
+                    if(!more){
+                        break;
                     }
+
+                    if(new String(message).equals("TERMINATE")){
+                       terminate = true;
+                    }
+
                 }
+            }
+
+            if(terminate) break;
 
         }
 
@@ -165,6 +172,8 @@ public class Broker extends ThreadPoolExecutor {
 
         workersSyncNotifier.send(syncPubSubTopic.getBytes(),0);
 
+        Thread.sleep(5000);
+
         broker.shutdownNow();
 
         System.out.println("Broker is shutting down ...");
@@ -174,6 +183,11 @@ public class Broker extends ThreadPoolExecutor {
             Thread.sleep(5000);
         }
 
+        closeResources();
+    }
+
+    private static void closeResources(){
+        workersSyncNotifier.close();
         frontend.close();
         backend.close();
         context.term();
