@@ -48,7 +48,7 @@ public class TradeWorker implements Runnable {
 
                 if(s.equals("dudy")){
 
-                    s = Thread.currentThread().getName()+"done some job on dudy : "+new String(message);
+                    s = Thread.currentThread().getName()+" done some job on dudy : "+new String(message);
                     message = s.getBytes();
                     try {
                         Thread.sleep(5000);

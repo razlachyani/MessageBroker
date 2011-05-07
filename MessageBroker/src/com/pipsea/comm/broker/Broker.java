@@ -197,7 +197,7 @@ public class Broker extends ThreadPoolExecutor {
 
         while (!broker.isTerminated()){
             System.out.println("Broker is still terminating workers ...");
-            Thread.sleep(5000);
+            //Thread.sleep(5000);
         }
 
         System.out.println("Closing resources ...");
@@ -205,13 +205,13 @@ public class Broker extends ThreadPoolExecutor {
         System.out.println("resources are all closed ...");
 
         // Walk up all the way to the root thread group
-        ThreadGroup rootGroup = Thread.currentThread().getThreadGroup();
-        ThreadGroup parent;
-        while ((parent = rootGroup.getParent()) != null) {
-            rootGroup = parent;
-        }
-
-        listThreads(rootGroup, "");
+//        ThreadGroup rootGroup = Thread.currentThread().getThreadGroup();
+//        ThreadGroup parent;
+//        while ((parent = rootGroup.getParent()) != null) {
+//            rootGroup = parent;
+//        }
+//
+//        listThreads(rootGroup, "");
 
         //System.exit(0);
     }
