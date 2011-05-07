@@ -57,10 +57,14 @@ public class Broker extends ThreadPoolExecutor {
             Context myContext = ZMQ.context(1);
             Socket finishBroker = myContext.socket(ZMQ.REQ);
             finishBroker.connect("ipc://"+Broker.dealerURI);
-            finishBroker.send("TERMINATE".getBytes(),0);
-
+            finishBroker.send("TERMINATE".getBytes(), 0);
             finishBroker.close();
             myContext.term();
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
             System.out.println("Finished Control-C ...");
         }
     }
