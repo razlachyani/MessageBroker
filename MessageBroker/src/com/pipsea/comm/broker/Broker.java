@@ -146,7 +146,7 @@ public class Broker extends ThreadPoolExecutor {
                     message = frontend.recv(0);
 
                     if(new String(message).equals("TERMINATE")){
-                        frontend.send("GOT_TERMINATION".getBytes(),0);
+                        //frontend.send("GOT_TERMINATION".getBytes(),0);
                         terminate = true;
                         break;
                     }

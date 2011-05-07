@@ -18,7 +18,7 @@ public class ShutDownBroker {
 
         System.out.println("Connecting to server ...");
         clientSocket.connect("tcp://localhost:5559");
-        clientSocket.setLinger(0);
+        //clientSocket.setLinger(0);
 
         System.out.println("Sending terminate to broker");
 
@@ -26,13 +26,13 @@ public class ShutDownBroker {
 
             clientSocket.send("TERMINATE".getBytes(), 0);
 
-            byte [] res = clientSocket.recv(0);
-
-            if(new String(res).equals("GOT_TERMINATION")){
-
-                System.out.println("Got termination approval from broker ...");
-               // break;
-            }
+//            byte [] res = clientSocket.recv(0);
+//
+//            if(new String(res).equals("GOT_TERMINATION")){
+//
+//                System.out.println("Got termination approval from broker ...");
+//               // break;
+//            }
 
 
         clientSocket.close();
