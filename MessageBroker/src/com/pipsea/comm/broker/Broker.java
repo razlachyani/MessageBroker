@@ -53,8 +53,14 @@ public class Broker extends ThreadPoolExecutor {
         public void run() {
             System.out.println("Control-C caught. Shutting down...");
 
-            shutDown = true;
+            //shutDown = true;
+            Context myContext = ZMQ.context(1);
+            Socket finishBroker = myContext.socket(ZMQ.REQ);
+            finishBroker.connect("ipc://"+Broker.dealerURI);
+            finishBroker.send("TERMINATE".getBytes(),0);
 
+            finishBroker.close();
+            myContext.term();
 
         }
     }
@@ -171,8 +177,6 @@ public class Broker extends ThreadPoolExecutor {
         System.out.println("Going to shutdown broker ...");
 
         workersSyncNotifier.send(syncPubSubTopic.getBytes(),0);
-
-        Thread.sleep(5000);
 
         broker.shutdownNow();
 
