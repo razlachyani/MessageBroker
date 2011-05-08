@@ -57,6 +57,8 @@ public class TradeWorker implements Runnable {
                         //e.printStackTrace();
                         break;
                     }
+                } else {
+                    message =   Thread.currentThread().getName().getBytes();
                 }
                 System.out.println("Got message from client "+new String(source)+ " : "+new String(message));
                 try {
