@@ -19,10 +19,10 @@ public class TradeWorker implements Runnable {
 
         Socket serverSocket = context.socket(ZMQ.REP);
         System.out.println("Server "+Thread.currentThread().getName()+" bind to socket ...");
-        serverSocket.connect("ipc://"+Broker.dealerURI);
+        serverSocket.connect(Broker.clientDealerURI);
 
         Socket syncSub = context.socket(ZMQ.SUB);
-        syncSub.connect("ipc://" + Broker.syncPubSubURI);
+        syncSub.connect(Broker.clientSyncPubSubURI);
         syncSub.subscribe(Broker.syncPubSubTopic.getBytes());
 
         BrokerWorkerSynchronizer brokerWorkerSynchronizer = new BrokerWorkerSynchronizer();
@@ -84,7 +84,7 @@ public class TradeWorker implements Runnable {
         syncSub.close();
         serverSocket.close();
         context.term();
-        System.out.println("worker "+Thread.currentThread().getName() +"terminated");
+        System.out.println("worker "+Thread.currentThread().getName() +" terminated");
 
     }
 

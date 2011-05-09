@@ -1,5 +1,6 @@
 package com.pipsea.comm;
 
+import com.pipsea.comm.broker.Broker;
 import org.zeromq.ZMQ;
 
 /**
@@ -11,7 +12,7 @@ import org.zeromq.ZMQ;
  */
 public class BrokerWorkerSynchronizer {
 
-    private static final String reqRepURI = "reqrep.ipc" ;
+
 
     public class BrokerSide {
          private int workersNumber;
@@ -26,7 +27,7 @@ public class BrokerWorkerSynchronizer {
             this.context = context;
 
             this.syncRep =context.socket(ZMQ.REP);
-            syncRep.bind("ipc://"+reqRepURI);
+            syncRep.bind(Broker.serverReqRepURI);
         }
 
         public void initSync(){
@@ -63,7 +64,7 @@ public class BrokerWorkerSynchronizer {
             this.context = context;
 
             this.syncReq = context.socket(ZMQ.REQ);
-            syncReq.connect("ipc://"+reqRepURI);
+            syncReq.connect(Broker.clientReqRepURI);
         }
 
         public void initSync(){

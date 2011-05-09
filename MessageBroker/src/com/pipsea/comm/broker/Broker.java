@@ -24,9 +24,31 @@ import com.pipsea.comm.trade.TradeWorker;
  */
 public class Broker extends ThreadPoolExecutor {
 
-    public static final String syncPubSubURI = "pubsub.ipc";
+    public static String clientReqRepURI;
+    public static String serverReqRepURI;
+    public static String clientSyncPubSubURI;
+    public static String serverSyncPubSubURI;
     public static final String syncPubSubTopic = "SHUTDOWN";
-    public static final String dealerURI = "dealer.ipc";
+    public static String frontendURL="tcp://*:5559";
+    public static String clientDealerURI;
+    public static String serverDealerURI;
+
+    static {
+        String os = System.getProperty("os.name");
+        if (os.contains("Win")){
+            clientReqRepURI = "tcp://localhost:5560";
+            serverReqRepURI = "tcp://*:5560";
+            clientSyncPubSubURI = "tcp://localhost:5561";
+            serverSyncPubSubURI = "tcp://*:5561";
+            clientDealerURI = "tcp://localhost:5562";
+            serverDealerURI = "tcp://*:5562";
+        } else {
+            clientReqRepURI = serverReqRepURI = "ipc://reqrep.ipc" ;
+            clientSyncPubSubURI = serverSyncPubSubURI = "ipc://pubsub.ipc";
+            clientDealerURI = serverDealerURI  = "ipc://dealer.ipc";
+        }
+    }
+
 
     private static Broker broker=null;
 
@@ -54,18 +76,18 @@ public class Broker extends ThreadPoolExecutor {
             System.out.println("Control-C caught. Shutting down...");
 
             //shutDown = true;
-            Context myContext = ZMQ.context(1);
-            Socket finishBroker = myContext.socket(ZMQ.REQ);
-            finishBroker.connect("ipc://"+Broker.dealerURI);
-            finishBroker.send("TERMINATE".getBytes(), 0);
-            finishBroker.close();
-            myContext.term();
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            System.out.println("Finished Control-C ...");
+//            Context myContext = ZMQ.context(1);
+//            Socket finishBroker = myContext.socket(ZMQ.REQ);
+//            finishBroker.connect("ipc://"+Broker.dealerURI);
+//            finishBroker.send("TERMINATE".getBytes(), 0);
+//            finishBroker.close();
+//            myContext.term();
+//            try {
+//                Thread.sleep(10000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//            }
+//            System.out.println("Finished Control-C ...");
         }
     }
 
@@ -104,9 +126,9 @@ public class Broker extends ThreadPoolExecutor {
 
 
         System.out.println("Broker bind to sockets ...");
-        workersSyncNotifier.bind("ipc://"+syncPubSubURI);
-        frontend.bind("tcp://*:5559");
-        backend.bind("ipc://"+dealerURI);
+        workersSyncNotifier.bind(serverSyncPubSubURI);
+        frontend.bind(frontendURL);
+        backend.bind(serverDealerURI);
         System.out.println("Broker bounded to sockets ...");
 
         broker.prestartAllCoreThreads();
@@ -137,7 +159,7 @@ public class Broker extends ThreadPoolExecutor {
         byte[] message;
 
 
-        while (!Thread.currentThread().isInterrupted() || shutDown==true){
+        while (!Thread.currentThread().isInterrupted()){
 
             items.poll();
 
@@ -225,7 +247,7 @@ public class Broker extends ThreadPoolExecutor {
 
     public static void listThreads(ThreadGroup group, String indent) {
         System.out.println(indent + "Group[" + group.getName() +
-                        ":" + group.getClass()+"]");
+                ":" + group.getClass()+"]");
         int nt = group.activeCount();
         Thread[] threads = new Thread[nt*2 + 10]; //nt is not accurate
         nt = group.enumerate(threads, false);
@@ -234,7 +256,7 @@ public class Broker extends ThreadPoolExecutor {
         for (int i=0; i<nt; i++) {
             Thread t = threads[i];
             System.out.println(indent + "  Thread[" + t.getName()
-                        + ":" + t.getClass() + "]");
+                    + ":" + t.getClass() + "]");
         }
 
         // Recursively list all subgroups
