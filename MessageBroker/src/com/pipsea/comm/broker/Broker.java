@@ -219,7 +219,7 @@ public class Broker extends ThreadPoolExecutor {
 
         while (!broker.isTerminated()){
             System.out.println("Broker is still terminating workers ...");
-            //Thread.sleep(5000);
+            Thread.sleep(5000);
         }
 
         System.out.println("Closing resources ...");
