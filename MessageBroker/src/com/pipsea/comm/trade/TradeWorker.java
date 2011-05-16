@@ -23,7 +23,7 @@ public class TradeWorker implements Runnable {
 
         Socket syncSub = context.socket(ZMQ.SUB);
         syncSub.connect(Broker.clientSyncPubSubURI);
-        syncSub.subscribe(Broker.syncPubSubTopic.getBytes());
+        syncSub.subscribe(Broker.syncPubSubTerminationTopic.getBytes());
 
         BrokerWorkerSynchronizer brokerWorkerSynchronizer = new BrokerWorkerSynchronizer();
         BrokerWorkerSynchronizer.WorkerSide workerSide = brokerWorkerSynchronizer.new WorkerSide(context);

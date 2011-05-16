@@ -24,28 +24,34 @@ import com.pipsea.comm.trade.TradeWorker;
  */
 public class Broker extends ThreadPoolExecutor {
 
-    public static String clientReqRepURI;
-    public static String serverReqRepURI;
+    public static String clientSyncReqRepURI;
+    public static String serverSyncReqRepURI;
     public static String clientSyncPubSubURI;
     public static String serverSyncPubSubURI;
-    public static final String syncPubSubTopic = "SHUTDOWN";
+    public static final String syncPubSubTerminationTopic = "SHUTDOWN";
     public static String frontendURL="tcp://*:5559";
     public static String clientDealerURI;
     public static String serverDealerURI;
+    public static String clientTradePipeURI;
+    public static String serverTradePipeURI;
+
 
     static {
         String os = System.getProperty("os.name");
         if (os.contains("Win")){
-            clientReqRepURI = "tcp://localhost:5560";
-            serverReqRepURI = "tcp://*:5560";
+            clientSyncReqRepURI = "tcp://localhost:5560";
+            serverSyncReqRepURI = "tcp://*:5560";
             clientSyncPubSubURI = "tcp://localhost:5561";
             serverSyncPubSubURI = "tcp://*:5561";
             clientDealerURI = "tcp://localhost:5562";
             serverDealerURI = "tcp://*:5562";
+            clientTradePipeURI = "tcp://localhost:5563";
+            serverTradePipeURI = "tcp://*:5563";
         } else {
-            clientReqRepURI = serverReqRepURI = "ipc://reqrep.ipc" ;
-            clientSyncPubSubURI = serverSyncPubSubURI = "ipc://pubsub.ipc";
+            clientSyncReqRepURI = serverSyncReqRepURI = "ipc://syncreqrep.ipc" ;
+            clientSyncPubSubURI = serverSyncPubSubURI = "ipc://syncpubsub.ipc";
             clientDealerURI = serverDealerURI  = "ipc://dealer.ipc";
+            clientTradePipeURI = serverTradePipeURI = "ipc://tradespipe.ipc";
         }
     }
 
@@ -106,7 +112,6 @@ public class Broker extends ThreadPoolExecutor {
     public Broker(int corePoolSize, int maximumPoolSize, long keepAliveTime,
                   TimeUnit unit, BlockingQueue<Runnable> workQueue, RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler);
-
 
     }
 
@@ -178,8 +183,6 @@ public class Broker extends ThreadPoolExecutor {
                     if(!more){
                         break;
                     }
-
-
                 }
             }
 
@@ -195,15 +198,13 @@ public class Broker extends ThreadPoolExecutor {
                     if(new String(message).equals("TERMINATE")){
                         terminate = true;
                     }
-
                 }
             }
 
             if(terminate) break;
-
         }
 
-        System.out.println("Broke the main loop ...");
+        System.out.println("Broke the main broker server ...");
         broker.bye();
     }
 
@@ -211,7 +212,7 @@ public class Broker extends ThreadPoolExecutor {
 
         System.out.println("Going to shutdown broker ...");
 
-        workersSyncNotifier.send(syncPubSubTopic.getBytes(),0);
+        workersSyncNotifier.send(syncPubSubTerminationTopic.getBytes(),0);
 
         broker.shutdownNow();
 
@@ -226,16 +227,6 @@ public class Broker extends ThreadPoolExecutor {
         closeResources();
         System.out.println("resources are all closed ...");
 
-        // Walk up all the way to the root thread group
-//        ThreadGroup rootGroup = Thread.currentThread().getThreadGroup();
-//        ThreadGroup parent;
-//        while ((parent = rootGroup.getParent()) != null) {
-//            rootGroup = parent;
-//        }
-//
-//        listThreads(rootGroup, "");
-
-        //System.exit(0);
     }
 
     private static void closeResources(){
@@ -245,28 +236,6 @@ public class Broker extends ThreadPoolExecutor {
         context.term();
     }
 
-    public static void listThreads(ThreadGroup group, String indent) {
-        System.out.println(indent + "Group[" + group.getName() +
-                ":" + group.getClass()+"]");
-        int nt = group.activeCount();
-        Thread[] threads = new Thread[nt*2 + 10]; //nt is not accurate
-        nt = group.enumerate(threads, false);
 
-        // List every thread in the group
-        for (int i=0; i<nt; i++) {
-            Thread t = threads[i];
-            System.out.println(indent + "  Thread[" + t.getName()
-                    + ":" + t.getClass() + "]");
-        }
-
-        // Recursively list all subgroups
-        int ng = group.activeGroupCount();
-        ThreadGroup[] groups = new ThreadGroup[ng*2 + 10];
-        ng = group.enumerate(groups, false);
-
-        for (int i=0; i<ng; i++) {
-            listThreads(groups[i], indent + "  ");
-        }
-    }
 }
 

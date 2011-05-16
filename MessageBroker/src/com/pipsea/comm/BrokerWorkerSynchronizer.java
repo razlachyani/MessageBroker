@@ -27,7 +27,7 @@ public class BrokerWorkerSynchronizer {
             this.context = context;
 
             this.syncRep =context.socket(ZMQ.REP);
-            syncRep.bind(Broker.serverReqRepURI);
+            syncRep.bind(Broker.serverSyncReqRepURI);
         }
 
         public void initSync(){
@@ -64,7 +64,7 @@ public class BrokerWorkerSynchronizer {
             this.context = context;
 
             this.syncReq = context.socket(ZMQ.REQ);
-            syncReq.connect(Broker.clientReqRepURI);
+            syncReq.connect(Broker.clientSyncReqRepURI);
         }
 
         public void initSync(){
